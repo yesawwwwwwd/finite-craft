@@ -1,0 +1,98 @@
+// ==UserScript==
+// @name         Infinite Craft Auto Crafter (drag version, educational)
+// @namespace    https://neal.fun/
+// @version      3.0
+// @description  Automatically crafts items by dragging them to the same spot (for educational/personal use only)
+// @match        https://neal.fun/infinite-craft/*
+// @grant        none
+// ==/UserScript==
+
+(() => {
+  console.log("%c[AutoCrafter v3] Drag version loaded — educational only", "color:lime; font-weight:bold");
+
+  const COMBINE_DELAY = 1000; // ms delay between combos
+  const LS_DISCOVERED = "IC_discoveredItems";
+  const LS_TRIED = "IC_triedCombos";
+
+  const discovered = new Set(JSON.parse(localStorage.getItem(LS_DISCOVERED) || "[]"));
+  const tried = new Set(JSON.parse(localStorage.getItem(LS_TRIED) || "[]"));
+
+  function save() {
+    localStorage.setItem(LS_DISCOVERED, JSON.stringify([...discovered]));
+    localStorage.setItem(LS_TRIED, JSON.stringify([...tried]));
+  }
+
+  const observer = new MutationObserver(() => {
+    const items = document.querySelectorAll(".item");
+    items.forEach(el => {
+      const name = el.innerText.trim();
+      if (name && !discovered.has(name)) {
+        discovered.add(name);
+        console.log("%c[NEW ITEM] " + name, "color:cyan");
+        save();
+      }
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  function getItemEls() {
+    return Array.from(document.querySelectorAll(".item"));
+  }
+
+  function comboKey(a, b) {
+    return [a, b].sort().join("+");
+  }
+
+  function pickTwo(arr) {
+    if (arr.length < 2) return [];
+    const a = arr[Math.floor(Math.random() * arr.length)];
+    let b = arr[Math.floor(Math.random() * arr.length)];
+    while (b === a) b = arr[Math.floor(Math.random() * arr.length)];
+    return [a, b];
+  }
+
+  // Get the canvas center
+  function getCenter() {
+    const rect = document.body.getBoundingClientRect();
+    return { x: rect.width / 2, y: rect.height / 2 };
+  }
+
+  // Drag an element to a position
+  function dragTo(el, x, y) {
+    const rect = el.getBoundingClientRect();
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top + rect.height / 2;
+
+    el.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, clientX: startX, clientY: startY }));
+    el.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: x, clientY: y }));
+    document.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, clientX: x, clientY: y }));
+  }
+
+  async function combine(elA, elB) {
+    const center = getCenter();
+    dragTo(elA, center.x, center.y);
+    await new Promise(r => setTimeout(r, 100));
+    dragTo(elB, center.x, center.y);
+  }
+
+  async function loop() {
+    while (true) {
+      const items = getItemEls();
+      if (items.length >= 2) {
+        const [elA, elB] = pickTwo(items);
+        const aName = elA.innerText.trim();
+        const bName = elB.innerText.trim();
+        const key = comboKey(aName, bName);
+        if (!tried.has(key)) {
+          tried.add(key);
+          console.log(`[Try] ${aName} + ${bName}`);
+          await combine(elA, elB);
+          save();
+        }
+      }
+      await new Promise(r => setTimeout(r, COMBINE_DELAY));
+    }
+  }
+
+  loop();
+})();
