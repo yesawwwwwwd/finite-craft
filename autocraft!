@@ -8,9 +8,9 @@
 // ==/UserScript==
 
 (() => {
-  console.log("%c[AutoCrafter v3.1] Center drag loaded —skibidi", "color:lime; font-weight:bold");
+  console.log("%c[AutoCrafter v3.1] Center drag loaded —skibidi toit", "color:lime; font-weight:bold");
 
-  const COMBINE_DELAY = 1000; // what fucking else bro
+  const COMBINE_DELAY = 1000; // crafting interval duhh
   const LS_DISCOVERED = "IC_discoveredItems";
   const LS_TRIED = "IC_triedCombos";
 
@@ -22,7 +22,7 @@
     localStorage.setItem(LS_TRIED, JSON.stringify([...tried]));
   }
 
-  // check if it get craft idfk
+  // Watch for new crafted thing
   const observer = new MutationObserver(() => {
     const items = document.querySelectorAll(".item");
     items.forEach(el => {
@@ -52,7 +52,7 @@
     return [a, b];
   }
 
-  // viewport
+  // Get screen center (viewport)
   function getCenter() {
     return { 
       x: window.innerWidth / 2, 
@@ -60,7 +60,7 @@
     };
   }
 
-  // drag to thing
+  // Simulate a drag to a coordinate
   function dragTo(el, x, y) {
     const rect = el.getBoundingClientRect();
     const startX = rect.left + rect.width / 2;
