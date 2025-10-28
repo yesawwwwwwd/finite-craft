@@ -1,16 +1,16 @@
 // ==UserScript==
-// @name         Infinite Craft Auto Crafter (drag version, educational)
+// @name         Infinite Craft Auto Crafter (center drag)
 // @namespace    https://neal.fun/
-// @version      3.0
-// @description  Automatically crafts items by dragging them to the same spot (for educational/personal use only)
+// @version      3.1
+// @description  auto craft type shit
 // @match        https://neal.fun/infinite-craft/*
 // @grant        none
 // ==/UserScript==
 
 (() => {
-  console.log("%c[AutoCrafter v3] Drag version loaded — educational only", "color:lime; font-weight:bold");
+  console.log("%c[AutoCrafter v3.1] Center drag loaded —skibidi", "color:lime; font-weight:bold");
 
-  const COMBINE_DELAY = 1000; // ms delay between combos
+  const COMBINE_DELAY = 1000; // what fucking else bro
   const LS_DISCOVERED = "IC_discoveredItems";
   const LS_TRIED = "IC_triedCombos";
 
@@ -22,13 +22,14 @@
     localStorage.setItem(LS_TRIED, JSON.stringify([...tried]));
   }
 
+  // check if it get craft idfk
   const observer = new MutationObserver(() => {
     const items = document.querySelectorAll(".item");
     items.forEach(el => {
       const name = el.innerText.trim();
       if (name && !discovered.has(name)) {
         discovered.add(name);
-        console.log("%c[NEW ITEM] " + name, "color:cyan");
+        console.log("%c[skibidi crafted] " + name, "color:cyan");
         save();
       }
     });
@@ -51,13 +52,15 @@
     return [a, b];
   }
 
-  // Get the canvas center
+  // viewport
   function getCenter() {
-    const rect = document.body.getBoundingClientRect();
-    return { x: rect.width / 2, y: rect.height / 2 };
+    return { 
+      x: window.innerWidth / 2, 
+      y: window.innerHeight / 2 
+    };
   }
 
-  // Drag an element to a position
+  // drag to thing
   function dragTo(el, x, y) {
     const rect = el.getBoundingClientRect();
     const startX = rect.left + rect.width / 2;
@@ -85,7 +88,7 @@
         const key = comboKey(aName, bName);
         if (!tried.has(key)) {
           tried.add(key);
-          console.log(`[Try] ${aName} + ${bName}`);
+          console.log(`[attempt] ${aName} + ${bName}`);
           await combine(elA, elB);
           save();
         }
